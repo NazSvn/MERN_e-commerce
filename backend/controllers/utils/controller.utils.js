@@ -1,6 +1,6 @@
 import { validationResult } from 'express-validator'
-import Coupon from '../../models/coupon.model'
-import { stripe } from '../../lib/stripe'
+import Coupon from '../../models/coupon.model.js'
+import { stripe } from '../../lib/stripe.js'
 // helper functions to validate request
 
 export const validateRequest = (req) => {
