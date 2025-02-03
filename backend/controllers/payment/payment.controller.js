@@ -3,7 +3,7 @@ import dotenv from 'dotenv'
 import {
   createNewcoupon,
   createStripeCoupon
-} from '../utils/controller.utils.js'
+} from '../../controllers/coupon/coupon.service.js'
 import { stripe } from '../../lib/stripe.js'
 import Order from '../../models/order.model.js'
 
@@ -108,7 +108,7 @@ export const checkoutSuccess = async (req, res) => {
           quantity: product.quantity,
           price: product.price
         })),
-        totalAmmount: session.amount_total / 100,
+        totalAmount: session.amount_total / 100,
         stripeSessionId: sessionId
       })
 
