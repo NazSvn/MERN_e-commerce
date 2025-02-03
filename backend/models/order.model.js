@@ -19,7 +19,7 @@ const orderSchema = new mongoose.Schema(
         price: { type: Number, required: true, min: 0 }
       }
     ],
-    totalAmmount: { type: Number, required: true, min: 0 },
+    totalAmount: { type: Number, required: true, min: 0 },
     stripeSessionId: { type: String, required: true, unique: true }
   },
   {
