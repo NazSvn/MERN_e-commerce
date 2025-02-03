@@ -1,6 +1,5 @@
-import { validationResult } from 'express-validator'
-import Coupon from '../../models/coupon.model.js'
-import { stripe } from '../../lib/stripe.js'
+import { validationResult } from 'express-validator' 
+
 // helper functions to validate request
 
 export const validateRequest = (req) => {
@@ -19,25 +18,18 @@ export const sanitizeUser = (user) => ({
   name: user.name,
   email: user.email,
   role: user.role
-})
+}) 
 
-export async function createStripeCoupon(discountPercentage) {
-  const coupon = await stripe.coupons.create({
-    percentange_off: discountPercentage,
-    duration: 'once'
-  })
+// helper function to get dates
 
-  return coupon.id
-}
+export function getDates(startDate, endDate) {
+  const dateArray = []
+  let currentDate = new Date(startDate)
 
-export async function createNewcoupon(userId) {
-  const newCoupon = new Coupon({
-    code: 'Gift' + Math.random().toString(36).substring(2, 8).toUpperCase(),
-    discountPercentage: 10,
-    expirationDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-    userId: userId
-  })
+  while (currentDate <= endDate) {
+    dateArray.push(currentDate.toISOString().split('T')[0])
+    currentDate.setDate(currentDate.getDate() + 1)
+  }
 
-  await newCoupon.save()
-  return newCoupon
+  return dateArray
 }
