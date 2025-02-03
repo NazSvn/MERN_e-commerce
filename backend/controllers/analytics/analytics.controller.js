@@ -1,7 +1,7 @@
 import {
   getAnalyticsData,
   getDailySalesData
-} from '../utils/controller.utils.js'
+} from '../analytics/analytics.service.js'
 
 export const getAnalytics = async (req, res) => {
   try {
