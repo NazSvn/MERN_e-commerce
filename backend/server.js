@@ -9,6 +9,7 @@ import couponRoutes from './routes/coupon.route.js'
 import paymentRoutes from './routes/payment.route.js'
 import analyticsRoutes from './routes/analytics.route.js'
 import { connectDB } from './lib/db.js'
+import { corsMiddleware } from './middleware/cors.middleware.js'
 
 dotenv.config()
 
@@ -18,6 +19,7 @@ const PORT = process.env.PORT || 5000
 app.use(express.json())
 app.use(cookieParser())
 app.disable('x-powered-by')
+app.use(corsMiddleware())
 
 app.use('/api/auth', authRoutes)
 app.use('/api/products', productsRoutes)
