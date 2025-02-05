@@ -3,9 +3,9 @@ import { motion } from "framer-motion";
 import FormInput from "../components/FormInput";
 import { ArrowRight, Loader, Lock, Mail, UserPlus } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useUserStore } from "../stores/useUserStore";
 
 const LoginPage = () => {
-  const loading = false;
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -14,6 +14,8 @@ const LoginPage = () => {
     email: "",
     password: "",
   });
+
+  const { login, loading } = useUserStore();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -45,9 +47,9 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    validateForm();
-
-    console.log(formData);
+    if (validateForm()) {
+      login(formData.email, formData.password);
+    }
   };
 
   return (
@@ -60,7 +62,7 @@ const LoginPage = () => {
           transition={{ duration: 0.8 }}
         >
           <h2 className="mt-6 text-center text-3xl font-extrabold text-emerald-400">
-            Create your account
+            Log in
           </h2>
         </motion.div>
         <motion.div
