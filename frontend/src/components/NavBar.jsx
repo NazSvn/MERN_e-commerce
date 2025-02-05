@@ -1,9 +1,10 @@
 import { Lock, LogOut, ShoppingCart } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useUserStore } from "../stores/useUserStore";
 
 const Navbar = () => {
-  const user = true;
-  const isAdmin = true;
+  const { user, logout } = useUserStore();
+  const isAdmin = user?.role === "admin";
   return (
     <header className="fixed top-0 left-0 z-40 w-full border-b border-emerald-800 bg-gray-900/90 shadow-lg backdrop-blur-md transition-all duration-300">
       <div className="container mx-auto px-4 py-3">
@@ -37,13 +38,19 @@ const Navbar = () => {
               </Link>
             )}
             {isAdmin && (
-              <Link className="flex items-center rounded-md bg-emerald-700 px-3 py-1 font-medium text-white transition duration-300 ease-in-out hover:bg-emerald-600">
+              <Link
+                to={"/admin-dashboard"}
+                className="flex items-center rounded-md bg-emerald-700 px-3 py-1 font-medium text-white transition duration-300 ease-in-out hover:bg-emerald-600"
+              >
                 <Lock className="mr-1 inline-block" size={18} />
                 <span className="hidden sm:inline">Dashboard</span>
               </Link>
             )}
             {user ? (
-              <button className="flex items-center rounded-md bg-gray-700 px-4 py-2 text-white transition duration-300 ease-in-out hover:bg-gray-600">
+              <button
+                onClick={logout}
+                className="flex items-center rounded-md bg-gray-700 px-4 py-2 text-white transition duration-300 ease-in-out hover:bg-gray-600"
+              >
                 <LogOut size={18} />
                 <span className="ml-2 hidden sm:inline">Log Out</span>
               </button>
