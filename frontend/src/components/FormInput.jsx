@@ -9,6 +9,8 @@ const FormInput = ({
   placeholder,
   required = false,
   icon,
+  step,
+  min,
   error,
 }) => {
   const IconComponent = icon ? icon : null;
@@ -34,9 +36,11 @@ const FormInput = ({
           onChange={onChange}
           required={required}
           placeholder={placeholder}
+          step={step}
+          min={min}
           aria-invalid={error ? "true" : "false"}
           aria-describedby={error ? `${name}-error` : undefined}
-          className={`block w-full rounded-md border bg-gray-700 px-3 py-2 pl-10 placeholder-gray-400 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 focus:outline-none sm:text-sm ${error ? "border-red-500" : "border-gray-600"} `}
+          className={`block w-full rounded-md border bg-gray-700 px-3 py-2 ${IconComponent ? "pl-10" : "pl-3"} placeholder-gray-400 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 focus:outline-none sm:text-sm ${error ? "border-red-500" : "border-gray-600"} `}
         />
       </div>
       {error && (
@@ -59,5 +63,7 @@ FormInput.propTypes = {
   placeholder: PropTypes.string,
   required: PropTypes.bool,
   icon: PropTypes.object,
+  step: PropTypes.string,
+  min: PropTypes.string,
   error: PropTypes.string,
 };
