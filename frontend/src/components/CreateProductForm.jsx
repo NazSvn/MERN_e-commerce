@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
 import { Loader, PlusCircle, Upload } from "lucide-react";
-import { useUserStore } from "../stores/useUserStore";
 import { useState } from "react";
+import FormInput from "./FormInput";
+import { useProductStore } from "../stores/useProductStore";
 
 const categories = [
   "jeans",
@@ -21,16 +22,82 @@ const CreateProductForm = () => {
     image: "",
     category: "",
   });
+  const [errors, setErrors] = useState({
+    name: "",
+    description: "",
+    price: "",
+    image: "",
+    category: "",
+  });
 
-  const { loading } = useUserStore();
+  const { createProduct, loading } = useProductStore();
+
+  // move to utils later
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewProduct((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const validateForm = () => {
+    const newErrors = {
+      name: "",
+      description: "",
+      price: "",
+      image: "",
+      category: "",
+    };
+
+    if (!newProduct.name.trim()) {
+      newErrors.name = "Product name is required";
+    }
+    if (!newProduct.description.trim()) {
+      newErrors.description = "Product description is required";
+    }
+    if (!newProduct.price.trim()) {
+      newErrors.price = "Product price is required";
+    }
+    if (!newProduct.image) {
+      newErrors.image = "Product image is required";
+    }
+    if (!newProduct.category.trim()) {
+      newErrors.category = "Please select a category";
+    }
+    setErrors(newErrors);
+    return Object.values(newErrors).every((error) => error === "");
+  };
 
   const handleImageChange = (e) => {
-    console.log("image here", e);
+    const file = e.target.files[0];
+    if (file) {
+      if (errors.image) setErrors({ ...errors, image: "" });
+      const reader = new FileReader();
+      reader.onload = () => {
+        setNewProduct({ ...newProduct, image: reader.result });
+      };
+      reader.readAsDataURL(file); // convert to base64
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(newProduct);
+
+    if (validateForm()) {
+      try {
+        await createProduct(newProduct);
+        setNewProduct({
+          name: "",
+          description: "",
+          price: "",
+          image: "",
+          category: "",
+        });
+      } catch (error) {
+        console.error("Error creating product:", error);
+      }
+    }
   };
 
   return (
@@ -45,26 +112,14 @@ const CreateProductForm = () => {
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label
-            htmlFor="name"
-            className="block text-sm font-medium text-gray-300"
-          >
-            Product Name
-          </label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={newProduct.name}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, name: e.target.value })
-            }
-            className="mt-1 block w-full rounded-md border border-gray-600 bg-gray-700 px-3 py-2 text-white shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-            required
-          />
-        </div>
-
+        <FormInput
+          label={"Product Name"}
+          name={"name"}
+          value={newProduct.name}
+          onChange={handleInputChange}
+          error={errors.name}
+          required
+        />
         <div>
           <label
             htmlFor="description"
@@ -80,31 +135,22 @@ const CreateProductForm = () => {
               setNewProduct({ ...newProduct, description: e.target.value })
             }
             rows="3"
-            className="mt-1 block w-full rounded-md border border-gray-600 bg-gray-700 px-3 py-2 text-white shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+            className="mt-1 block w-full rounded-md border border-gray-600 bg-gray-700 px-3 py-2 pl-3 text-white placeholder-gray-400 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 focus:outline-none sm:text-sm"
             required
           />
         </div>
 
-        <div>
-          <label
-            htmlFor="price"
-            className="block text-sm font-medium text-gray-300"
-          >
-            Price
-          </label>
-          <input
-            type="number"
-            id="price"
-            name="price"
-            value={newProduct.price}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, price: e.target.value })
-            }
-            step="0.01"
-            className="mt-1 block w-full rounded-md border border-gray-600 bg-gray-700 px-3 py-2 text-white shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-            required
-          />
-        </div>
+        <FormInput
+          label={"Price"}
+          name={"price"}
+          value={newProduct.price}
+          onChange={handleInputChange}
+          error={errors.price}
+          required
+          type={"number"}
+          step="0.01"
+          min={"0"}
+        />
 
         <div>
           <label
@@ -120,7 +166,7 @@ const CreateProductForm = () => {
             onChange={(e) =>
               setNewProduct({ ...newProduct, category: e.target.value })
             }
-            className="mt-1 block w-full rounded-md border border-gray-600 bg-gray-700 px-3 py-2 text-white shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+            className="mt-1 block w-full rounded-md border border-gray-600 bg-gray-700 px-3 py-2 pl-3 text-white placeholder-gray-400 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 focus:outline-none sm:text-sm"
             required
           >
             <option value="">Select a category</option>
@@ -149,6 +195,9 @@ const CreateProductForm = () => {
           </label>
           {newProduct.image && (
             <span className="ml-3 text-sm text-gray-400">Image uploaded </span>
+          )}
+          {errors.image && (
+            <span className="ml-3 text-sm text-gray-400">{errors.image}</span>
           )}
         </div>
 
