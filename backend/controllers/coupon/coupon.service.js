@@ -5,7 +5,7 @@ import { stripe } from '../../lib/stripe.js'
 
 export async function createStripeCoupon(discountPercentage) {
   const coupon = await stripe.coupons.create({
-    percentange_off: discountPercentage,
+    percent_off: discountPercentage,
     duration: 'once'
   })
 
@@ -14,6 +14,7 @@ export async function createStripeCoupon(discountPercentage) {
 
 // helper function to create a new coupon
 export async function createNewcoupon(userId) {
+  await Coupon.findOneAndDelete({ userId })
   const newCoupon = new Coupon({
     code: 'Gift' + Math.random().toString(36).substring(2, 8).toUpperCase(),
     discountPercentage: 10,
