@@ -131,8 +131,15 @@ export const getRecommendedProducts = async (req, res) => {
 export const getProductsByCategory = async (req, res) => {
   const { category } = req.params
   try {
-    const products = await Product.find({ category })
-    res.status(200).json(products)
+    const categoryDoc = await Category.findOne({ slug: category })
+    if (!categoryDoc) {
+      return res.status(404).json({ message: 'Category not found' })
+    }
+
+    const products = await Product.find({ category: categoryDoc._id }).populate(
+      'category'
+    )
+    res.status(200).json({ products })
   } catch (error) {
     console.error(error)
     res.status(500).json({ message: 'Server error', error: error.message })
