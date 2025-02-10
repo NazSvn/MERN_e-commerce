@@ -8,6 +8,6 @@ import {
 const router = express.Router()
 
 router.get('/', authMiddleware, getCoupon)
-router.get('/validate', authMiddleware, validateCoupon)
+router.post('/validate', authMiddleware, validateCoupon)
 
 export default router
