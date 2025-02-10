@@ -1,5 +1,6 @@
 import cloudinary from '../../lib/cloudinary.js'
 import { redis } from '../../lib/redis.js'
+import Category from '../../models/category.model.js'
 import Product from '../../models/product.model.js'
 
 export const getAllProducts = async (req, res) => {
@@ -45,6 +46,20 @@ export const createProduct = async (req, res) => {
       cloudinaryResponse = await cloudinary.uploader.upload(image, {
         folder: 'products'
       })
+    }
+
+    const category = await Category.findOne({ slug: categorySlug })
+    if (!category) {
+      return res.status(404).json({ message: 'Category not found' })
+    }
+
+    if (subcategorySlug) {
+      const validSubcategory = category.subcategories.some(
+        (sub) => sub.slug === subcategorySlug
+      )
+      if (!validSubcategory) {
+        return res.status(404).json({ message: 'Subcategory not found' })
+      }
     }
 
     const product = await Product.create({
