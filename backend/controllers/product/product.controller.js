@@ -5,7 +5,7 @@ import Product from '../../models/product.model.js'
 
 export const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find({})
+    const products = await Product.find({}).populate('category')
     res.status(200).json({ products })
   } catch (error) {
     console.error(error)
@@ -24,7 +24,10 @@ export const getFeaturedProducts = async (req, res) => {
     // if not in redis, fetch from db
     // .lean() to convert to a plain js object instead of mongodb document. good for performance
 
-    featuredProducts = await Product.find({ isFeatured: true }).lean()
+    featuredProducts = await Product.find({ isFeatured: true })
+      .populate('category')
+      .lean()
+
     if (!featuredProducts) {
       return res.status(404).json({ message: 'No featured products found' })
     }
@@ -39,7 +42,8 @@ export const getFeaturedProducts = async (req, res) => {
 
 export const createProduct = async (req, res) => {
   try {
-    const { name, description, price, image, category } = req.body
+    const { name, description, price, image, categorySlug, subcategorySlug } =
+      req.body
     let cloudinaryResponse = null
 
     if (image) {
@@ -69,8 +73,11 @@ export const createProduct = async (req, res) => {
       image: cloudinaryResponse?.secure_url
         ? cloudinaryResponse?.secure_url
         : '',
-      category
+      category: category._id,
+      subcategory: subcategorySlug
     })
+
+    await product.populate('category')
 
     res.status(201).json(product)
   } catch (error) {
@@ -167,7 +174,9 @@ export const toggleFeaturedProduct = async (req, res) => {
 
 async function updateFeaturedProductsCache() {
   try {
-    const featuredProducts = await Product.find({ isFeatured: true }).lean()
+    const featuredProducts = await Product.find({ isFeatured: true })
+      .populate('category')
+      .lean()
     await redis.set('featured_Products', JSON.stringify(featuredProducts))
   } catch (error) {
     console.error(error)
