@@ -1,3 +1,5 @@
+import './utils/instrument.mjs'
+import * as Sentry from '@sentry/node'
 import express from 'express'
 import dotenv from 'dotenv'
 import cookieParser from 'cookie-parser'
@@ -30,6 +32,8 @@ app.use('/api/coupons', couponRoutes)
 app.use('/api/payments', paymentRoutes)
 app.use('/api/analytics', analyticsRoutes)
 app.use('/api/category', categoriesRoutes)
+ 
+Sentry.setupExpressErrorHandler(app)
 
 app.listen(PORT, () => {
   console.log(`Server started on http://localhost:${PORT}`)
