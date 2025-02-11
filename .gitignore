@@ -10,3 +10,5 @@ logs/
 
 # ignore HTTP test file
 api.http
+# Sentry Config File
+.env.sentry-build-plugin
