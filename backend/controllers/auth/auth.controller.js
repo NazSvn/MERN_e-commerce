@@ -1,5 +1,6 @@
 import { redis } from '../../lib/redis.js'
 import User from '../../models/user.model.js'
+import { handleError } from '../../utils/errorhandler.js'
 import { sanitizeUser, validateRequest } from '../utils/controller.utils.js'
 import {
   clearCookies,
@@ -32,8 +33,8 @@ export const signup = async (req, res) => {
 
     res.status(201).json(sanitizeUser(user))
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: error.message })
+    const errorMessage = handleError(error, 'Error creating user')
+    res.status(500).json({ message: errorMessage })
   }
 }
 
@@ -63,8 +64,8 @@ export const login = async (req, res) => {
 
     res.status(200).json(sanitizeUser(user))
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: error.message })
+    const errorMessage = handleError(error, 'Error logging in')
+    res.status(500).json({ message: errorMessage })
   }
 }
 
@@ -86,8 +87,8 @@ export const logout = async (req, res) => {
     clearCookies(res)
     res.status(200).json({ message: 'Logged out successfully' })
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: 'Server error', error: error.message })
+    const errorMessage = handleError(error, 'Error logging out')
+    res.status(500).json({ message: 'Server error', errorMessage })
   }
 }
 
@@ -120,8 +121,8 @@ export const refreshToken = async (req, res) => {
 
     res.status(200).json({ message: 'Token refreshed successfully' })
   } catch (error) {
-    console.error('Refresh token error:', error)
-    return res.status(401).json({ message: 'Failed to refresh token' })
+    const errorMessage = handleError(error, 'Failed to refresh token')
+    return res.status(401).json({ message: errorMessage })
   }
 }
 
@@ -138,7 +139,7 @@ export const getProfile = async (req, res) => {
 
     res.status(200).json(sanitizeUser(user))
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: 'Server error', error: error.message })
+    const errorMessage = handleError(error, 'Error getting user profile')
+    res.status(500).json({ message: 'Server error', errorMessage })
   }
 }
