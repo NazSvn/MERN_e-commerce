@@ -14,7 +14,7 @@ export const getAnalytics = async (req, res) => {
 
     res.status(200).json({ analyticsData, dailySalesData })
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: 'Server error', error: error.message })
+    const errorMessage = handleError(error, 'Error getting analytics')
+    res.status(500).json({ message: 'Server error', errorMessage })
   }
 }
