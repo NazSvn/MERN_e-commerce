@@ -1,4 +1,5 @@
 import Product from '../../models/product.model.js'
+import { handleError } from '../../utils/errorhandler.js'
 
 export const addToCart = async (req, res) => {
   try {
@@ -15,8 +16,8 @@ export const addToCart = async (req, res) => {
     await user.save()
     res.status(200).json(user.cartItems)
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: 'Server error', error: error.message })
+    const errorMessage = handleError(error, 'Error adding product to cart')
+    res.status(500).json({ message: 'Server error', errorMessage })
   }
 }
 
@@ -33,8 +34,8 @@ export const removeAllFromCart = async (req, res) => {
     await user.save()
     res.status(200).json(user.cartItems)
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: 'Server error', error: error.message })
+    const errorMessage = handleError(error, 'Error removing product from cart')
+    res.status(500).json({ message: 'Server error', errorMessage })
   }
 }
 
@@ -59,8 +60,8 @@ export const updateQuantity = async (req, res) => {
       res.status(404).json({ message: 'Product not found in cart' })
     }
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: 'Server error', error: error.message })
+    const errorMessage = handleError(error, 'Error updating product quantity')
+    res.status(500).json({ message: 'Server error', errorMessage })
   }
 }
 
@@ -79,7 +80,7 @@ export const getCartProducts = async (req, res) => {
 
     res.status(200).json(cartItems)
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: 'Server error', error: error.message })
+    const errorMessage = handleError(error, 'Error getting cart products')
+    res.status(500).json({ message: 'Server error', errorMessage })
   }
-} 
+}
