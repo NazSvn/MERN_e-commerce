@@ -4,9 +4,10 @@
   "main": "backend/server.js",
   "scripts": {
     "dev": "node --import ./backend/utils/instrument.mjs --watch backend/server.js",
-    "start": "node backend/server.js",
+    "start": "node --import ./backend/utils/instrument.mjs backend/server.js",
     "seed": "node backend/scripts/seedCategories.js",
-    "resetIndex": "node backend/scripts/resetIndexes.js"
+    "resetIndex": "node backend/scripts/resetIndexes.js",
+    "build": "npm install && install --prefix frontend && npm run build --prefix frontend"
   },
   "keywords": [],
   "author": "",
