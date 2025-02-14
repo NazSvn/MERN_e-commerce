@@ -1,4 +1,5 @@
 import Coupon from '../../models/coupon.model.js'
+import { handleError } from '../../utils/errorhandler.js'
 
 export const getCoupon = async (req, res) => {
   try {
@@ -9,8 +10,8 @@ export const getCoupon = async (req, res) => {
 
     res.status(200).json(coupon || null)
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: 'Server error', error: error.message })
+    const errorMessage = handleError(error, 'Error getting coupon')
+    res.status(500).json({ message: 'Server error', errorMessage })
   }
 }
 
@@ -38,7 +39,7 @@ export const validateCoupon = async (req, res) => {
       discountPercentage: coupon.discountPercentage
     })
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: 'Server error', error: error.message })
+    const errorMessage = handleError(error, 'Error validating coupon')
+    res.status(500).json({ message: 'Server error', errorMessage })
   }
 }
