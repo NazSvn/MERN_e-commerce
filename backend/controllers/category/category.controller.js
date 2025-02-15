@@ -42,9 +42,8 @@ export const createCategory = async (req, res) => {
 
     res.status(201).json(category)
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: 'Error creating category', error: error.message })
+    const errorMessage = handleError(error, 'Error creating category')
+    res.status(500).json({ message: 'Error creating category', errorMessage })
   }
 }
 
@@ -68,9 +67,8 @@ export const updateCategory = async (req, res) => {
 
     res.status(200).json(category)
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: 'Error updating category', error: error.message })
+    const errorMessage = handleError(error, 'Error updating category')
+    res.status(500).json({ message: 'Error updating category', errorMessage })
   }
 }
 
@@ -79,8 +77,20 @@ export const getAllCategories = async (req, res) => {
     const categories = await Category.find({})
     res.status(200).json(categories)
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: 'Error fetching categories', error: error.message })
+    const errorMessage = handleError(error, 'Error getting categories')
+    res.status(500).json({ message: errorMessage })
+  }
+}
+
+export const deleteCategory = async (req, res) => {
+  try {
+    const category = await Category.findOneAndDelete({ slug: req.params.slug })
+    if (!category) {
+      return res.status(404).json({ message: 'Category not found' })
+    }
+    res.status(200).json({ message: 'Category deleted successfully' })
+  } catch (error) {
+    const errorMessage = handleError(error, 'Error deleting category')
+    res.status(500).json({ message: errorMessage })
   }
 }
