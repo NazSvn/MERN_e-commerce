@@ -6,6 +6,7 @@ import {
 } from '../../controllers/coupon/coupon.service.js'
 import { stripe } from '../../lib/stripe.js'
 import Order from '../../models/order.model.js'
+import { handleError } from '../../utils/errorhandler.js'
 
 dotenv.config()
 
@@ -51,8 +52,8 @@ export const createCheckoutSession = async (req, res) => {
       payment_method_types: ['card'],
       line_items: lineItems,
       mode: 'payment',
-      success_url: `${process.env.FRONTEND_URL}/purchase-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.FRONTEND_URL}/purchase-cancelled`,
+      success_url: `${process.env.CLIENT_URL}/purchase-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.CLIENT_URL}/purchase-cancelled`,
       discounts: coupon
         ? [
             {
@@ -78,8 +79,8 @@ export const createCheckoutSession = async (req, res) => {
     }
     res.status(200).json({ id: session.id, totalAmount: totalAmount / 100 })
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: 'Server error', error: error.message })
+    const errorMessage = handleError(error, 'Error creating checkout session')
+    res.status(500).json({ message: 'Server error', errorMessage })
   }
 }
 
@@ -122,7 +123,7 @@ export const checkoutSuccess = async (req, res) => {
       })
     }
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: 'Server error', error: error.message })
+    const errorMessage = handleError(error, 'Error processing checkout success')
+    res.status(500).json({ message: 'Server error', errorMessage })
   }
 }
