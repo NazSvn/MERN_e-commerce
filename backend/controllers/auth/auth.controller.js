@@ -81,8 +81,8 @@ export const logout = async (req, res) => {
     try {
       const decoded = await decodeRefreshToken(refreshToken)
       await redis.del(`refreshToken:${decoded.userId}`)
-    } catch (tokenErrror) {
-      console.error('Token verification failed:', tokenErrror)
+    } catch (error) {
+      throw new Error(error.message)
     }
     clearCookies(res)
     res.status(200).json({ message: 'Logged out successfully' })
