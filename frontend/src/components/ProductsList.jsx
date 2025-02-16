@@ -1,78 +1,87 @@
-import { useEffect } from "react";
 import { useProductStore } from "../stores/useProductStore";
 import { motion } from "framer-motion";
-import { Star, Trash } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
+import DeleteWarning from "./DeleteWarning";
+import ProductsListCard from "./ProductListCard";
 
 const ProductsList = () => {
-  const { products, getAllProducts, toggleFeaturedProduct, deleteProduct } =
-    useProductStore();
+  const { products, toggleFeaturedProduct, deleteProduct } = useProductStore();
 
-  useEffect(() => {
-    getAllProducts();
-  }, [getAllProducts]);
+  const [showModal, setShowModal] = useState({
+    isShowing: false,
+    product: null,
+  });
+
+  const handleDelete = useCallback(
+    async (product) => {
+      setShowModal({ isShowing: false, product: null });
+      await deleteProduct(product);
+    },
+    [deleteProduct],
+  );
+
+  const handleToggleFeatured = useCallback(
+    (productId) => {
+      toggleFeaturedProduct(productId);
+    },
+    [toggleFeaturedProduct],
+  );
+
+  const handleOpenModal = useCallback((product) => {
+    setShowModal({
+      isShowing: true,
+      product: product,
+    });
+  }, []);
+
+  const handleCloseModal = useCallback(() => {
+    setShowModal({
+      isShowing: false,
+      product: null,
+    });
+  }, []);
+
+  const tableHeaders = useMemo(
+    () => ["Product", "Price", "Category", "Featured", "Actions"],
+    [],
+  );
 
   return (
     <motion.div
-      className="mx-2 overflow-hidden rounded-lg bg-gray-800 shadow-lg sm:mx-auto sm:max-w-4xl"
+      className="overflow-hidden rounded-lg bg-gray-800 shadow-lg sm:mx-auto sm:max-w-4xl"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8 }}
     >
       <div className="grid grid-cols-6 items-center gap-1 bg-gray-700 px-2 py-3">
-        {["Product", "Price", "Category", "Featured", "Actions"].map(
-          (header, i) => (
-            <div
-              key={header}
-              className={`${i === 0 && "col-span-2 px-0"} py-3.5 text-[0.550rem] font-medium tracking-wider text-gray-400 uppercase sm:text-xs`}
-            >
-              {header}
-            </div>
-          ),
-        )}
-      </div>
-      <div className="">
-        {products.map((product) => (
+        {tableHeaders.map((header, i) => (
           <div
-            key={product._id}
-            className="grid grid-cols-6 items-center gap-1 px-2 py-4 hover:bg-gray-700"
+            key={header}
+            className={`${i === 0 && "col-span-2 px-0"} py-3.5 text-[0.550rem] font-medium tracking-wider text-white uppercase sm:text-xs`}
           >
-            <div className="col-span-2 flex items-center min-[500px]:flex-row pr-1">
-              <img
-                className="h-8 w-8 rounded-full object-cover sm:h-10 sm:w-10"
-                src={product.image}
-                alt={product.name}
-              />
-              <div className="ml-2 max-w-[120px] truncate text-sm font-medium text-white sm:ml-4 sm:max-w-[200px]">
-                {product.name}
-              </div>
-            </div>
-            <div className="truncate text-sm text-gray-300 ">
-              ${product.price.toFixed(2)}
-            </div>
-            <div className="text-sm text-gray-300">{product.category}</div>
-            <div className="flex pl-2">
-              <button
-                onClick={() => toggleFeaturedProduct(product._id)}
-                className={`w-fit rounded-full p-1 ${
-                  product.isFeatured
-                    ? "bg-yellow-400 text-gray-900"
-                    : "bg-gray-600 text-gray-300"
-                } transition-colors duration-200 hover:bg-yellow-500`}
-              >
-                <Star className="h-5 w-5" />
-              </button>
-            </div>
-            <div className="flex pl-2">
-              <button
-                onClick={() => deleteProduct(product._id)}
-                className="w-fit text-red-400 hover:text-red-300"
-              >
-                <Trash className="h-5 w-5" />
-              </button>
-            </div>
+            {header}
           </div>
         ))}
       </div>
+      <div className="">
+        {products.map((product) => (
+          <ProductsListCard
+            key={product._id}
+            product={product}
+            onToggleFeatured={handleToggleFeatured}
+            ondelete={handleOpenModal}
+          />
+        ))}
+      </div>
+      <DeleteWarning
+        isOpen={showModal.isShowing}
+        onClose={handleCloseModal}
+        title="Delete Product"
+        description={`Are you sure you want to delete ${showModal?.product?.name} product? This action cannot be undone.`}
+        confirmText="Delete"
+        confirmButtonClass="bg-red-500 hover:bg-red-600 focus:ring-red-500"
+        onConfirm={() => handleDelete(showModal?.product?._id)}
+      />
     </motion.div>
   );
 };
