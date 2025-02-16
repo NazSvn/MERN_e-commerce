@@ -21,13 +21,10 @@ export const useProductStore = create((set, get) => ({
     } catch (error) {
       set({ loading: false });
       if (error.response) {
-        console.error("Server error", error.message);
         toast.error(error.response.data.message || "An error occurred");
       } else if (error.request) {
-        console.error("Network error", error.message);
         toast.error(error.request.message || "An error occurred");
       } else {
-        console.error("Error", error.message);
         toast.error(error.message || "An error occurred");
       }
     }
@@ -40,13 +37,10 @@ export const useProductStore = create((set, get) => ({
     } catch (error) {
       set({ loading: false });
       if (error.response) {
-        console.error("Server error", error.message);
         toast.error(error.response.data.message || "An error occurred");
       } else if (error.request) {
-        console.error("Network error", error.message);
         toast.error(error.request.message || "An error occurred");
       } else {
-        console.error("Error", error.message);
         toast.error(error.message || "An error occurred");
       }
     }
@@ -62,13 +56,10 @@ export const useProductStore = create((set, get) => ({
     } catch (error) {
       set({ loading: false });
       if (error.response) {
-        console.error("Server error", error.message);
         toast.error(error.response.data.message || "An error occurred");
       } else if (error.request) {
-        console.error("Network error", error.message);
         toast.error(error.request.message || "An error occurred");
       } else {
-        console.error("Error", error.message);
         toast.error(error.message || "An error occurred");
       }
     }
@@ -137,13 +128,10 @@ export const useProductStore = create((set, get) => ({
     } catch (error) {
       set({ loading: false });
       if (error.response) {
-        console.error("Server error", error.message);
         toast.error(error.response.data.message || "An error occurred");
       } else if (error.request) {
-        console.error("Network error", error.message);
         toast.error(error.request.message || "An error occurred");
       } else {
-        console.error("Error", error.message);
         toast.error(error.message || "An error occurred");
       }
     }
