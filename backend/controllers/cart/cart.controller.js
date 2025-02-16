@@ -1,5 +1,5 @@
 import Product from '../../models/product.model.js'
-import { handleError } from '../../utils/errorhandler.js'
+import { handleError } from '../../utils/errorHandler.js'
 
 export const addToCart = async (req, res) => {
   try {

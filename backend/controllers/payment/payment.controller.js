@@ -6,7 +6,7 @@ import {
 } from '../../controllers/coupon/coupon.service.js'
 import { stripe } from '../../lib/stripe.js'
 import Order from '../../models/order.model.js'
-import { handleError } from '../../utils/errorhandler.js'
+import { handleError } from '../../utils/errorHandler.js'
 
 dotenv.config()
 

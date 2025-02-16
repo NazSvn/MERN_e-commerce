@@ -1,5 +1,5 @@
 import Coupon from '../../models/coupon.model.js'
-import { handleError } from '../../utils/errorhandler.js'
+import { handleError } from '../../utils/errorHandler.js'
 
 export const getCoupon = async (req, res) => {
   try {

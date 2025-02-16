@@ -1,6 +1,6 @@
 import { redis } from '../../lib/redis.js'
 import User from '../../models/user.model.js'
-import { handleError } from '../../utils/errorhandler.js'
+import { handleError } from '../../utils/errorHandler.js'
 import { sanitizeUser, validateRequest } from '../utils/controller.utils.js'
 import {
   clearCookies,

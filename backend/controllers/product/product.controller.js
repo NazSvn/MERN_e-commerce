@@ -2,7 +2,7 @@ import cloudinary from '../../lib/cloudinary.js'
 import { redis } from '../../lib/redis.js'
 import Category from '../../models/category.model.js'
 import Product from '../../models/product.model.js'
-import { handleError } from '../../utils/errorhandler.js'
+import { handleError } from '../../utils/errorHandler.js'
 
 export const getAllProducts = async (req, res) => {
   try {
