@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import FormInput from "../components/FormInput";
 import { ArrowRight, Loader, Lock, Mail, UserPlus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useUserStore } from "../stores/useUserStore";
+import handleSimpleKeydown from "../utils/handleSimpleKeydown";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -15,23 +16,30 @@ const LoginPage = () => {
     password: "",
   });
 
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
+
+  const refs = useMemo(
+    () => ({
+      email: emailRef,
+      password: passwordRef,
+    }),
+    [],
+  );
+
   const { login, loading } = useUserStore();
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  const emailRegex = useMemo(
+    () => /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/,
+    [],
+  );
 
-  const validateForm = () => {
+  const validateForm = useCallback(() => {
     const newErrors = {
       email: "",
       password: "",
     };
 
-    const emailRegex = /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/;
     if (!formData.email.trim()) {
       newErrors.email = "Email is required";
     } else if (!emailRegex.test(formData.email)) {
@@ -43,18 +51,52 @@ const LoginPage = () => {
     }
     setErrors(newErrors);
     return Object.values(newErrors).every((error) => error === "");
-  };
+  }, [emailRegex, formData.email, formData.password]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (validateForm()) {
-      login(formData.email, formData.password);
-    }
-  };
+  const handleInputChange = useCallback((e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  }, []);
+
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+
+      if (validateForm()) {
+        await login(formData.email, formData.password);
+      }
+    },
+    [formData.email, formData.password, login, validateForm],
+  );
+
+  const inputsConfig = useMemo(
+    () => [
+      {
+        label: "Email address",
+        name: "email",
+        type: "email",
+        placeholder: "Your email address",
+        icon: Mail,
+        ref: refs.email,
+      },
+      {
+        label: "Password",
+        name: "password",
+        type: "password",
+        placeholder: "Password",
+        icon: Lock,
+        ref: refs.password,
+      },
+    ],
+    [refs],
+  );
 
   return (
     <>
-      <div className="flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="mx-4 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <motion.div
           className="sm:mx-auto sm:w-full sm:max-w-md"
           initial={{ opacity: 0, y: -20 }}
@@ -69,35 +111,25 @@ const LoginPage = () => {
           className="mt-8 sm:mx-auto sm:w-full sm:max-w-md"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
+          transition={{ duration: 0.5 }}
         >
           <div className="bg-gray-800 px-4 py-8 shadow sm:rounded-lg sm:px-10">
             <form className="space-y-6" onSubmit={handleSubmit}>
-              <FormInput
-                label={"Email address"}
-                name={"email"}
-                type={"email"}
-                value={formData.email}
-                onChange={handleInputChange}
-                placeholder={"Your email address"}
-                icon={Mail}
-                error={errors.email}
-              />
-
-              <FormInput
-                label={"Password"}
-                name={"password"}
-                type={"password"}
-                value={formData.password}
-                onChange={handleInputChange}
-                placeholder={"Password"}
-                icon={Lock}
-                error={errors.password}
-              />
-
+              {inputsConfig.map((input) => (
+                <FormInput
+                  key={input.name}
+                  {...input}
+                  value={formData[input.name]}
+                  onChange={handleInputChange}
+                  onKeyDown={(e) =>
+                    handleSimpleKeydown(e, setFormData, input.name, input.ref)
+                  }
+                  error={errors[input.name]}
+                />
+              ))}
               <button
                 type="submit"
-                className="flex w-full justify-center rounded-md border border-transparent bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition duration-150 ease-in-out hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50"
+                className="flex w-full cursor-pointer justify-center rounded-md border border-transparent bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition duration-150 ease-in-out hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50"
                 disabled={loading}
               >
                 {loading ? (
