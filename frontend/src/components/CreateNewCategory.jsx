@@ -5,6 +5,7 @@ import { Loader, Plus, PlusCircle, X } from "lucide-react";
 import FormInput from "./FormInput";
 import getSlug from "../utils/getSlug";
 import toast from "react-hot-toast";
+import Tooltip from "./Tooltip";
 
 const CreateNewCategory = () => {
   const { loading, createCategory } = useCategoryStore();
@@ -264,7 +265,9 @@ const CreateNewCategory = () => {
                   onClick={() => removeSubcategory(index)}
                   className="absolute top-9 -right-5.5 cursor-pointer rounded-full border text-gray-400 hover:text-red-400"
                 >
-                  <X className="h-4 w-4" />
+                  <Tooltip text="Delete">
+                    <X className="h-4 w-4" />
+                  </Tooltip>
                 </button>
               </div>
             ))}
