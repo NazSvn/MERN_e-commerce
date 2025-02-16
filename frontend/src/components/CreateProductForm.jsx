@@ -1,45 +1,46 @@
 import { motion } from "framer-motion";
 import { Loader, PlusCircle, Upload } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import FormInput from "./FormInput";
 import { useProductStore } from "../stores/useProductStore";
-
-const categories = [
-  "jeans",
-  "t-shirts",
-  "shoes",
-  "glasses",
-  "jackets",
-  "suits",
-  "bags",
-];
+import { useCategoryStore } from "../stores/useCategoryStore";
+import toast from "react-hot-toast";
 
 const CreateProductForm = () => {
+  const { categories } = useCategoryStore();
+
+  const { createProduct, loading } = useProductStore();
+
   const [newProduct, setNewProduct] = useState({
     name: "",
     description: "",
     price: "",
     image: "",
-    category: "",
+    categorySlug: "",
+    subcategorySlug: "",
   });
   const [errors, setErrors] = useState({
     name: "",
     description: "",
     price: "",
     image: "",
-    category: "",
+    categorySlug: "",
+    subcategorySlug: "",
   });
 
-  const { createProduct, loading } = useProductStore();
+  const selectedCategory = useMemo(
+    () => categories.find((cat) => cat.slug === newProduct.categorySlug),
+    [categories, newProduct.categorySlug],
+  );
 
-  // move to utils later
-  const handleInputChange = (e) => {
+  const handleInputChange = useCallback((e) => {
     const { name, value } = e.target;
     setNewProduct((prev) => ({
       ...prev,
       [name]: value,
+      ...(name === "categorySlug" ? { subcategorySlug: "" } : {}),
     }));
-  };
+  }, []);
 
   const validateForm = () => {
     const newErrors = {
@@ -47,7 +48,8 @@ const CreateProductForm = () => {
       description: "",
       price: "",
       image: "",
-      category: "",
+      categorySlug: "",
+      subcategorySlug: "",
     };
 
     if (!newProduct.name.trim()) {
@@ -62,24 +64,38 @@ const CreateProductForm = () => {
     if (!newProduct.image) {
       newErrors.image = "Product image is required";
     }
-    if (!newProduct.category.trim()) {
-      newErrors.category = "Please select a category";
+    if (!newProduct.categorySlug.trim()) {
+      newErrors.categorySlug = "Please select a category";
     }
+
+    const selectedCategory = categories.find(
+      (cat) => cat.slug === newProduct.categorySlug,
+    );
+    if (
+      selectedCategory?.subcategories?.length > 0 &&
+      !newProduct.subcategorySlug.trim()
+    ) {
+      newErrors.subcategorySlug = "Please select a subcategory";
+    }
+
     setErrors(newErrors);
     return Object.values(newErrors).every((error) => error === "");
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (errors.image) setErrors({ ...errors, image: "" });
-      const reader = new FileReader();
-      reader.onload = () => {
-        setNewProduct({ ...newProduct, image: reader.result });
-      };
-      reader.readAsDataURL(file); // convert to base64
-    }
-  };
+  const handleImageChange = useCallback(
+    (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        if (errors.image) setErrors({ ...errors, image: "" });
+        const reader = new FileReader();
+        reader.onload = () => {
+          setNewProduct({ ...newProduct, image: reader.result });
+        };
+        reader.readAsDataURL(file); // convert to base64
+      }
+    },
+    [errors, newProduct],
+  );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -92,22 +108,28 @@ const CreateProductForm = () => {
           description: "",
           price: "",
           image: "",
-          category: "",
+          categorySlug: "",
+          subcategorySlug: "",
         });
       } catch (error) {
-        console.error("Error creating product:", error);
+        toast.error("Error creating product:", error.message);
       }
     }
   };
 
+  const hasSubcategories = useMemo(
+    () => selectedCategory?.subcategories?.length > 0,
+    [selectedCategory],
+  );
+
   return (
     <motion.div
-      className="mx-auto mb-8 max-w-xl rounded-lg bg-gray-800 p-8 shadow-lg"
+      className="mx-auto mb-8 max-w-xl rounded-lg bg-gray-800 p-4 shadow-lg sm:p-8"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8 }}
+      transition={{ duration: 0.5 }}
     >
-      <h2 className="mb-6 text-2xl font-semibold text-emerald-300">
+      <h2 className="mb-6 text-2xl font-medium text-emerald-300">
         Create New Product
       </h2>
 
@@ -154,29 +176,58 @@ const CreateProductForm = () => {
 
         <div>
           <label
-            htmlFor="category"
+            htmlFor="categorySlug"
             className="block text-sm font-medium text-gray-300"
           >
             Category
           </label>
           <select
-            id="category"
-            name="category"
-            value={newProduct.category}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, category: e.target.value })
-            }
+            id="categorySlug"
+            name="categorySlug"
+            value={newProduct.categorySlug}
+            onChange={handleInputChange}
             className="mt-1 block w-full rounded-md border border-gray-600 bg-gray-700 px-3 py-2 pl-3 text-white placeholder-gray-400 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 focus:outline-none sm:text-sm"
             required
           >
             <option value="">Select a category</option>
             {categories.map((category) => (
-              <option key={category} value={category}>
-                {category}
+              <option key={category.slug} value={category.slug}>
+                {category.name}
               </option>
             ))}
           </select>
         </div>
+
+        {hasSubcategories && (
+          <div>
+            <label
+              htmlFor="subcategorySlug"
+              className="block text-sm font-medium text-gray-300"
+            >
+              Subcategory
+            </label>
+            <select
+              name="subcategorySlug"
+              id="subcategorySlug"
+              value={newProduct.subcategorySlug}
+              onChange={handleInputChange}
+              className="mt-1 block w-full rounded-md border border-gray-600 bg-gray-700 px-3 py-2 pl-3 text-white placeholder-gray-400 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 focus:outline-none sm:text-sm"
+              required
+            >
+              <option value="">Select a subcategory</option>
+              {selectedCategory.subcategories.map((sub) => (
+                <option key={sub.slug} value={sub.slug}>
+                  {sub.name}
+                </option>
+              ))}
+            </select>
+            {errors.subcategorySlug && (
+              <p className="mt-1 text-sm text-red-500">
+                {errors.subcategorySlug}
+              </p>
+            )}
+          </div>
+        )}
 
         <div className="mt-1 flex items-center">
           <input
@@ -203,7 +254,7 @@ const CreateProductForm = () => {
 
         <button
           type="submit"
-          className="flex w-full justify-center rounded-md border border-transparent bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50"
+          className="flex w-full cursor-pointer justify-center rounded-md border border-transparent bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50"
           disabled={loading}
         >
           {loading ? (
