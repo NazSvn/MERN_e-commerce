@@ -1,14 +1,32 @@
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
+import { useProductStore } from "../stores/useProductStore";
+import { memo, useEffect, useMemo, useState } from "react";
 
-const CategoryItem = ({ category }) => {
+const CategoryItem = memo(({ category }) => {
+  const { products } = useProductStore();
+  const [categoryImage, setCategoryImage] = useState("");
+
+  const categoryProducts = useMemo(() => {
+    if (!products.length || !category?.slug) return [];
+    return products.filter(
+      (product) => product.category?.slug === category.slug,
+    );
+  }, [products, category?.slug]);
+
+  useEffect(() => {
+    if (categoryProducts.length > 0) {
+      setCategoryImage(categoryProducts[0].image);
+    }
+  }, [categoryProducts]);
+
   return (
     <div className="group relative h-96 w-full overflow-hidden rounded-lg">
-      <Link to={"/category" + category?.href}>
+      <Link to={"/category/" + category?.slug}>
         <div className="h-full w-full cursor-pointer">
           <div className="absolute inset-0 z-10 bg-gradient-to-b from-transparent to-gray-900 opacity-50" />
           <img
-            src={category?.imageUrl}
+            src={categoryImage}
             alt={category?.name}
             className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
             loading="lazy"
@@ -23,10 +41,14 @@ const CategoryItem = ({ category }) => {
       </Link>
     </div>
   );
-};
+});
 
+CategoryItem.displayName = "CategoryItem";
 export default CategoryItem;
 
 CategoryItem.propTypes = {
-  category: PropTypes.object,
+  category: PropTypes.shape({
+    name: PropTypes.string,
+    slug: PropTypes.string,
+  }),
 };
