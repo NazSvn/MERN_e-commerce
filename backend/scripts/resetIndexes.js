@@ -18,7 +18,6 @@ async function resetIndexes() {
     console.log('Done! Now restart your application')
     process.exit(0)
   } catch (error) {
-    console.error('Error resetting indexes:', error)
     process.exit(1)
   }
 }
