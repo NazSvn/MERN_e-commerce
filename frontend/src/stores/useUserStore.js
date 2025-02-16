@@ -4,7 +4,7 @@ import { toast } from "react-hot-toast";
 
 export const useUserStore = create((set, get) => ({
   user: null,
-  loding: false,
+  loading: false,
   checkAuth: true,
 
   signup: async ({ name, email, password, confirmPassword }) => {
@@ -21,17 +21,15 @@ export const useUserStore = create((set, get) => ({
         email,
         password,
       });
+
       set({ user: res.data, loading: false });
     } catch (error) {
       set({ loading: false });
       if (error.response) {
-        console.error("Server error", error.message);
         toast.error(error.response.data.message || "An error occurred");
       } else if (error.request) {
-        console.error("Network error", error.message);
         toast.error(error.request.message || "An error occurred");
       } else {
-        console.error("Error", error.message);
         toast.error(error.message || "An error occurred");
       }
     }
@@ -49,13 +47,10 @@ export const useUserStore = create((set, get) => ({
     } catch (error) {
       set({ loading: false });
       if (error.response) {
-        console.error("Server error", error.message);
         toast.error(error.response.data.message || "An error occurred");
       } else if (error.request) {
-        console.error("Network error", error.message);
         toast.error(error.request.message || "An error occurred");
       } else {
-        console.error("Error", error.message);
         toast.error(error.message || "An error occurred");
       }
     }
@@ -67,7 +62,7 @@ export const useUserStore = create((set, get) => ({
       set({ user: res.data, checkAuth: false });
     } catch (error) {
       set({ checkAuth: false, user: null });
-      console.error(error.message);
+      toast.error(error.message || "An error occurred");
     }
   },
   logout: async () => {
@@ -99,10 +94,8 @@ export const useUserStore = create((set, get) => ({
       if (error.response) {
         toast.error(error.response.data.message || "An error occurred");
       } else if (error.request) {
-        console.error("Network error", error.message);
         toast.error(error.request.message || "An error occurred");
       } else {
-        console.error("Error", error.message);
         toast.error(error.message || "An error occurred");
       }
     }
