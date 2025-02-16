@@ -1,9 +1,11 @@
 import { Lock, LogOut, ShoppingCart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useUserStore } from "../stores/useUserStore";
+import { useCartStore } from "../stores/useCartStore";
 
 const Navbar = () => {
   const { user, logout } = useUserStore();
+  const { cart } = useCartStore();
   const isAdmin = user?.role === "admin";
   return (
     <header className="fixed top-0 left-0 z-40 w-full border-b border-emerald-800 bg-gray-900/90 shadow-lg backdrop-blur-md transition-all duration-300">
@@ -32,9 +34,11 @@ const Navbar = () => {
                   size={22}
                 />
                 <span className="hidden sm:inline">Cart</span>
-                <span className="absolute -top-2 -left-2 rounded-full bg-emerald-500 px-2 py-0.5 text-xs text-white transition duration-300 ease-in-out group-hover:bg-emerald-400">
-                  3
-                </span>
+                {cart.length > 0 && (
+                  <span className="absolute -top-2 -left-2 block h-5 w-5 content-center rounded-full bg-emerald-500 text-center text-xs text-white transition duration-300 ease-in-out group-hover:bg-emerald-400">
+                    {cart.length}
+                  </span>
+                )}
               </Link>
             )}
             {isAdmin && (
@@ -49,7 +53,7 @@ const Navbar = () => {
             {user ? (
               <button
                 onClick={logout}
-                className="flex items-center rounded-md bg-gray-700 px-4 py-2 text-white transition duration-300 ease-in-out hover:bg-gray-600"
+                className="flex cursor-pointer items-center rounded-md bg-gray-700 px-4 py-2 text-white transition duration-300 ease-in-out hover:bg-gray-600"
               >
                 <LogOut size={18} />
                 <span className="ml-2 hidden sm:inline">Log Out</span>
