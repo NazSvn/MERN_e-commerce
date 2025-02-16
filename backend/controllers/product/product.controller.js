@@ -2,14 +2,15 @@ import cloudinary from '../../lib/cloudinary.js'
 import { redis } from '../../lib/redis.js'
 import Category from '../../models/category.model.js'
 import Product from '../../models/product.model.js'
+import { handleError } from '../../utils/errorhandler.js'
 
 export const getAllProducts = async (req, res) => {
   try {
     const products = await Product.find({}).populate('category')
     res.status(200).json({ products })
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: 'Server error', error: error.message })
+    const errorMessage = handleError(error, 'Error getting products')
+    res.status(500).json({ message: 'Server error', errorMessage })
   }
 }
 
@@ -35,8 +36,8 @@ export const getFeaturedProducts = async (req, res) => {
     await redis.set('featured_Products', JSON.stringify(featuredProducts))
     res.status(200).json(featuredProducts)
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: 'Server error', error: error.message })
+    const errorMessage = handleError(error, 'Error getting featured products')
+    res.status(500).json({ message: 'Server error', errorMessage })
   }
 }
 
@@ -81,8 +82,8 @@ export const createProduct = async (req, res) => {
 
     res.status(201).json(product)
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: 'Server error', error: error.message })
+    const errorMessage = handleError(error, 'Error creating product')
+    res.status(500).json({ message: 'Server error', errorMessage })
   }
 }
 
@@ -98,17 +99,18 @@ export const deleteProduct = async (req, res) => {
       const publicId = product.image.split('/').pop().split('.')[0] // get the public id from the url
       try {
         await cloudinary.uploader.destroy(`products/${publicId}`)
-        console.log(`Product image deleted from Cloudinary: ${publicId}`)
+        /* console.log(`Product image deleted from Cloudinary: ${publicId}`) */
       } catch (error) {
-        console.error(`Error deleting product image from Cloudinary: ${error}`)
+        const errorMessage = handleError(error, 'Error deleting product image')
+        throw new Error(errorMessage)
       }
     }
 
     await Product.findByIdAndDelete(id)
     res.status(200).json({ message: 'Product deleted successfully' })
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: 'Server error', error: error.message })
+    const errorMessage = handleError(error, 'Error deleting product')
+    res.status(500).json({ message: 'Server error', errorMessage })
   }
 }
 
@@ -130,8 +132,11 @@ export const getRecommendedProducts = async (req, res) => {
 
     res.status(200).json(products)
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: 'Server error', error: error.message })
+    const errorMessage = handleError(
+      error,
+      'Error getting recommended products'
+    )
+    res.status(500).json({ message: 'Server error', errorMessage })
   }
 }
 
@@ -148,8 +153,8 @@ export const getProductsByCategory = async (req, res) => {
     )
     res.status(200).json({ products })
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: 'Server error', error: error.message })
+    const errorMessage = handleError(error, 'Error getting products')
+    res.status(500).json({ message: 'Server error', errorMessage })
   }
 }
 
@@ -167,8 +172,8 @@ export const toggleFeaturedProduct = async (req, res) => {
     await updateFeaturedProductsCache()
     res.status(200).json(updatedProduct)
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: 'Server error', error: error.message })
+    const errorMessage = handleError(error, 'Error toggling featured product')
+    res.status(500).json({ message: 'Server error', errorMessage })
   }
 }
 
@@ -179,9 +184,7 @@ async function updateFeaturedProductsCache() {
       .lean()
     await redis.set('featured_Products', JSON.stringify(featuredProducts))
   } catch (error) {
-    console.error(error)
-    res
-      .status(500)
-      .json({ message: 'Error updating cahche', error: error.message })
+    const errorMessage = handleError(error, 'Error updating cahche')
+    res.status(500).json({ message: errorMessage })
   }
 }
