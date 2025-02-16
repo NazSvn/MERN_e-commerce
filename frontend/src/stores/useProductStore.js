@@ -2,8 +2,9 @@ import { create } from "zustand";
 import toast from "react-hot-toast";
 import axiosInstance from "../lib/axios";
 
-export const useProductStore = create((set) => ({
+export const useProductStore = create((set, get) => ({
   products: [],
+  recommendations: [],
   loading: false,
 
   setProducts: (products) => set({ products }),
@@ -84,6 +85,55 @@ export const useProductStore = create((set) => ({
         ),
         loading: false,
       }));
+      await get().getAllProducts();
+    } catch (error) {
+      set({ loading: false });
+      if (error.response) {
+        toast.error(error.response.data.message || "An error occurred");
+      } else if (error.request) {
+        toast.error(error.request.message || "An error occurred");
+      } else {
+        toast.error(error.message || "An error occurred");
+      }
+    }
+  },
+  getProductsByCategory: async (category) => {
+    set({ loading: true });
+    try {
+      const res = await axiosInstance.get(`/products/category/${category}`);
+      set({ products: res.data.products, loading: false });
+    } catch (error) {
+      set({ loading: false });
+      if (error.response) {
+        toast.error(error.response.data.message || "An error occurred");
+      } else if (error.request) {
+        toast.error(error.request.message || "An error occurred");
+      } else {
+        toast.error(error.message || "An error occurred");
+      }
+    }
+  },
+  getRecommendedProducts: async () => {
+    set({ loading: true });
+    try {
+      const res = await axiosInstance.get("/products/recommended");
+      set({ recommendations: res.data, loading: false });
+    } catch (error) {
+      set({ loading: false });
+      if (error.response) {
+        toast.error(error.response.data.message || "An error occurred");
+      } else if (error.request) {
+        toast.error(error.request.message || "An error occurred");
+      } else {
+        toast.error(error.message || "An error occurred");
+      }
+    }
+  },
+  getFeaturedProducts: async () => {
+    set({ loading: true });
+    try {
+      const res = await axiosInstance.get("/products/featured");
+      set({ products: res.data, loading: false });
     } catch (error) {
       set({ loading: false });
       if (error.response) {
