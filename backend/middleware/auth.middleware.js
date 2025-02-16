@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken'
 import User from '../models/user.model.js'
+import { handleError } from '../utils/errorhandler.js'
 
 export const authMiddleware = async (req, res, next) => {
   try {
@@ -18,8 +19,8 @@ export const authMiddleware = async (req, res, next) => {
       return res.status(401).json({ message: 'Invalid or expired token' })
     }
   } catch (error) {
-    console.error('Auth Middleware Error:', error)
-    return res.status(401).json({ message: 'Invalid token' })
+    const errorMessage = handleError(error, 'Invalid token')
+    return res.status(401).json({ message: errorMessage })
   }
 }
 
@@ -29,7 +30,7 @@ export const adminMiddleware = async (req, res, next) => {
       next()
     }
   } catch (error) {
-    console.error('Admin Middleware Error:', error)
-    return res.status(403).json({ message: 'Access denied - admin only' })
+    const errorMessage = handleError(error, 'Access denied - admin only')
+    return res.status(403).json({ message: errorMessage })
   }
 }
