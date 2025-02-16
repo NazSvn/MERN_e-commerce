@@ -7,7 +7,7 @@ import axiosInstance from "../lib/axios";
 import { useCallback, useState } from "react";
 import toast from "react-hot-toast";
 
-const stripePromise = loadStripe(import.meta.env.REACT_APP_STRIPE_PUBLIC_KEY);
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 const OrderSummary = () => {
   const { total, subtotal, appliedCoupon, cart } = useCartStore();
